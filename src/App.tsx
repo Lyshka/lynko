@@ -1,19 +1,45 @@
-function App() {
+import React from 'react';
+import { convert } from 'number-to-words-ru';
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { useForm, SubmitHandler } from "react-hook-form";
+import { formatCurrencyString, formatNumber } from './lib/Formatted';
+import { sendInfoDocument } from './lib/api';
+
+type Inputs = {
+  costOfClaim: string,
+};
+
+const App: React.FC = () => {
+  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+
+  const onSubmit: SubmitHandler<Inputs> = async data => {
+    const formatRusString = formatCurrencyString((convert(data.costOfClaim)));
+    const formatNumberString = formatNumber(data.costOfClaim);
+    const fullPriceString = `${formatNumberString} ${formatRusString}`;
+
+    const { data: info } = await sendInfoDocument({ price: fullPriceString });
+
+    window.location.href = `${import.meta.env.VITE_API_URL}/${info.file_url}`;
+  }
+
   return (
     <div className="flex justify-center items-center h-screen">
-      <div className="w-full max-w-sm min-w-[200px]">
-        <div className="relative">
-          <input
-            type="number"
-            className="peer w-full bg-transparent placeholder:text-slate-400 text-slate-700 text-sm border border-slate-200 rounded-md px-3 py-2 transition duration-300 ease focus:outline-none focus:border-slate-400 hover:border-slate-300 shadow-sm focus:shadow"
-          />
-          <label className="absolute cursor-text bg-white px-1 left-2.5 top-2.5 text-slate-400 text-sm transition-all transform origin-left peer-focus:-top-2 peer-focus:left-2.5 peer-focus:text-xs peer-focus:text-slate-400 peer-focus:scale-90">
-            Ценна иска...
+      <form onSubmit={handleSubmit(onSubmit)} method='POST' className="w-full max-w-sm min-w-[200px]">
+        <div className="flex items-center gap-4">
+          <Input step={0.01} type='number' {...register("costOfClaim")} />
+
+          <label className='shrink-0'>
+            Ценна иска
           </label>
         </div>
-      </div>
-    </div>
-  )
-}
 
-export default App
+        <Button type='submit' className='w-full'>
+          Отправить
+        </Button>
+      </form>
+    </div>
+  );
+};
+
+export default App;
