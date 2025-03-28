@@ -3,7 +3,7 @@ import { convert } from 'number-to-words-ru';
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useForm, SubmitHandler } from "react-hook-form";
-import { formatCurrencyString, formatNumber } from './lib/Formatted';
+import { formatCurrencyString, formatNumber } from './lib/formatted';
 import { sendInfoDocument } from './lib/api';
 
 type Inputs = {
@@ -11,7 +11,7 @@ type Inputs = {
 };
 
 const App: React.FC = () => {
-  const { register, handleSubmit, formState: { errors } } = useForm<Inputs>();
+  const { register, handleSubmit } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = async data => {
     const formatRusString = formatCurrencyString((convert(data.costOfClaim)));
